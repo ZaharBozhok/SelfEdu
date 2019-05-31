@@ -28,6 +28,7 @@ namespace FileSystem
         virtual const std::string& GetFullPath() const = 0;
         virtual mode_t GetMode() const = 0;
         virtual void LoadData() = 0;
+        virtual void UnloadData() = 0;
         virtual const std::vector<IDataStructure*>& GetChildren() const = 0;
     };
 
@@ -89,6 +90,10 @@ namespace FileSystem
             {
                 //Load additional info about file
             }
+            void UnloadData() override
+            {
+                // Unload additional info about file
+            }
     };
 
     class Directory : public ADataStructure
@@ -107,10 +112,6 @@ namespace FileSystem
                 if (0 != closedir(m_dir))
                 {
                     std::cerr << "Can't close directory" << std::endl;
-                }
-                for (size_t i = 0; i < m_files.size(); i++)
-                {
-                    delete m_files[i];
                 }
             }
             void LoadData() override
@@ -131,6 +132,15 @@ namespace FileSystem
                         m_files.emplace_back(new File(GetFullPath() + "/" + dirent->d_name));
                     }
                 }
+            }
+            void UnloadData() override
+            {
+                for (size_t i = 0; i < m_files.size(); i++)
+                {
+                    m_files[i]->UnloadData();
+                    delete m_files[i];
+                }
+                m_files.clear();
             }
             const std::vector<IDataStructure*>& GetChildren() const
             {
@@ -212,19 +222,19 @@ namespace FileSystem
         private:
             void ChopHead()
             {
-                while(true)
+                while (true)
                 {
+                    m_stack.top().current->UnloadData();
                     m_stack.pop();
                     if (m_stack.empty())
                     {
                         return;
                     }
                     IterableDataStruct& currIt = m_stack.top();
-                    currIt.currentChildIndex++;
                     if (currIt.currentChildIndex < currIt.children.size())
                     {
                         m_currentDataStruct = currIt.children[currIt.currentChildIndex];
-                        m_currentDataStruct->LoadData(); 
+                        m_currentDataStruct->LoadData();
                         currIt.currentChildIndex++;
                         if (isDir(m_currentDataStruct))
                         {
@@ -317,13 +327,14 @@ int main(int argc, char* argv[])
         file->LoadData();
         DumbFileIterator iter(file);
         DirectoryWalker walker(iter);
-        std::function<void(const IDataStructure&)> handler =
-            [](const IDataStructure & dataStruct)->void
-        {
-            std::cout << dataStruct.GetFullPath() << std::endl;
-        };
-        walker.SetHandler(handler);
+        // std::function<void(const IDataStructure&)> handler =
+        //     [](const IDataStructure & dataStruct)->void
+        // {
+        //     std::cout << dataStruct.GetFullPath() << std::endl;
+        // };
+        // walker.SetHandler(handler);
         walker.Walk();
+        file->UnloadData();
         delete file;
     }
     return 0;
