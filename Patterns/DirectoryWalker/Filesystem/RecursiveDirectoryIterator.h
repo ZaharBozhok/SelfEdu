@@ -9,18 +9,18 @@ namespace FileSystem
 {
 class RecursiveDirectoryIterator : public DirectoryIterator
 {
-private:
-    RecursiveDirectoryIterator();
 public:
     RecursiveDirectoryIterator(const File& root);
     File& operator*() override;
     File* operator->() override;
+    explicit operator bool() const override;
+    DirectoryIterator& operator++() override;
     bool operator==(const RecursiveDirectoryIterator& val) const;
     bool operator!=(const RecursiveDirectoryIterator& val) const;
-    RecursiveDirectoryIterator& operator++();
 public:
     static const RecursiveDirectoryIterator& end();
 private:
+    RecursiveDirectoryIterator();
     void getNext();
     void getNextAtomic();
     void chopchop();

@@ -8,6 +8,11 @@ StraightDirectoryIterator::StraightDirectoryIterator() : m_dir(nullptr), m_diren
 
 }
 
+StraightDirectoryIterator::operator bool() const
+{
+    return (*this != end());
+}
+
 bool StraightDirectoryIterator::operator==(const StraightDirectoryIterator& val) const
 {
     return  m_iterableDir.Path() ==  val.m_iterableDir.Path() &&
@@ -42,7 +47,7 @@ File& StraightDirectoryIterator::operator*()
     return m_currentFile;
 }
 
-StraightDirectoryIterator& StraightDirectoryIterator::operator++()
+DirectoryIterator& StraightDirectoryIterator::operator++()
 {
     getNext();
     return *this;

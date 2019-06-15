@@ -35,6 +35,11 @@ File* RecursiveDirectoryIterator::operator->()
     return m_currentFile;
 }
 
+RecursiveDirectoryIterator::operator bool() const
+{
+    return (*this != end());
+}
+
 bool RecursiveDirectoryIterator::operator==(const RecursiveDirectoryIterator& val) const
 {
     return m_iterFrames == val.m_iterFrames;
@@ -43,7 +48,7 @@ bool RecursiveDirectoryIterator::operator!=(const RecursiveDirectoryIterator& va
 {
     return !(*this == val);
 }
-RecursiveDirectoryIterator& RecursiveDirectoryIterator::operator++()
+DirectoryIterator& RecursiveDirectoryIterator::operator++()
 {
     getNext();
     return *this;

@@ -2,8 +2,13 @@
 #include "Filesystem/File.h"
 #include "Filesystem/RecursiveDirectoryIterator.h"
 #include "Filesystem/StraightDirectoryIterator.h"
+#include "Filesystem/DirectoryWalker.h"
 
-int main(int argc, char* argv[])
+namespace fs = FileSystem;
+
+namespace
+{
+std::string GetPath(int argc, char* argv[])
 {
     std::string path;
     if(argc == 1)
@@ -19,14 +24,25 @@ int main(int argc, char* argv[])
     {
         path = argv[1];
     }
-    
-    FileSystem::File file(path);
-    FileSystem::RecursiveDirectoryIterator iter(file);
-    
-    while(iter != iter.end())
-    {
-        std::cout << iter->Path() << std::endl;
-        ++iter;
-    }
+    return path;
+}
+};
+
+int main(int argc, char* argv[])
+{
+    std::string path = GetPath(argc, argv);
+
+    fs::File file(path);
+    fs::RecursiveDirectoryIterator recursiveIter(file);
+    fs::StraightDirectoryIterator straightIter(file);
+
+    fs::DirectoryWalker directoryWalker(&straightIter,
+        [](const fs::File& file)
+        {
+            std::cout << file.Name() << std::endl;
+        }
+    );
+    directoryWalker.Walk();
+
     return 0;
 }

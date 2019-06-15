@@ -15,9 +15,10 @@ public:
     StraightDirectoryIterator(const File& file);
     File& operator*() override;
     File* operator->() override;
+    explicit operator bool() const override;
+    DirectoryIterator& operator++() override;
     bool operator==(const StraightDirectoryIterator& val) const;
     bool operator!=(const StraightDirectoryIterator& val) const;
-    StraightDirectoryIterator& operator++();
 public:
     static StraightDirectoryIterator end();
 private:
