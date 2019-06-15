@@ -1,8 +1,8 @@
 #include <iostream>
-#include "Filesystem/File.h"
-#include "Filesystem/RecursiveDirectoryIterator.h"
-#include "Filesystem/StraightDirectoryIterator.h"
-#include "Filesystem/DirectoryWalker.h"
+#include <File.h>
+#include <RecursiveDirectoryIterator.h>
+#include <StraightDirectoryIterator.h>
+#include <DirectoryWalker.h>
 
 namespace fs = FileSystem;
 
