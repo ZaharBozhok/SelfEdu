@@ -3,15 +3,14 @@
 
 namespace FileSystem
 {
-    class File;
+class File;
 };
 
 namespace FileSystem
 {
 
-class DirectoryIterator
+struct DirectoryIterator
 {
-public:
     virtual ~DirectoryIterator() {}
     virtual File& operator*() = 0;
     virtual File* operator->() = 0;

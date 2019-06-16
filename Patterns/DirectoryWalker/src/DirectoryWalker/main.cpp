@@ -2,7 +2,14 @@
 #include <File.h>
 #include <RecursiveDirectoryIterator.h>
 #include <StraightDirectoryIterator.h>
-#include <DirectoryWalker.h>
+#include "DirectoryWalker.h"
+#include "StreamWrapper.h"
+#include "SocketWrapper.h"
+#include <vector>
+#include <fstream>
+#include <memory>
+#include "WritablesFactory.h"
+#include "DirectoryIteratorFactory.h"
 
 namespace fs = FileSystem;
 
@@ -26,23 +33,74 @@ std::string GetPath(int argc, char* argv[])
     }
     return path;
 }
+DirectoryIteratorFactory::IteratorType GetIterator(int argc, char* argv[])
+{
+    if(argc >= 3)
+    {
+        char i = 0;
+        i = argv[2][0];
+        if(i == 's')
+        {
+            return DirectoryIteratorFactory::IteratorType::STRAIGHT;
+        }
+        else if(i == 'r')
+        {
+            return DirectoryIteratorFactory::IteratorType::RECURSIVE;
+        }
+        else
+        {
+            throw std::runtime_error("Unknown iterrator type");
+        }
+    }
+    return DirectoryIteratorFactory::IteratorType::STRAIGHT;
+}
+
+WritablesFactory::WritableType GetWritable(int argc, char* argv[])
+{
+    if(argc >= 4)
+    {
+        switch (argv[3][0])
+        {
+        case 's':
+            return WritablesFactory::WritableType::STDOUT;
+            break;
+        case 'f':
+            return WritablesFactory::WritableType::FILE;
+            break;
+        case 'u':
+            return WritablesFactory::WritableType::UNIXDOMAINSOCKET;
+            break;
+        default:
+            throw std::runtime_error("Unknown writable type");
+            break;
+        }
+    }
+    return WritablesFactory::WritableType::STDOUT;
+}
 };
 
 int main(int argc, char* argv[])
 {
-    std::string path = GetPath(argc, argv);
+    try
+    {
+        std::unique_ptr<fs::DirectoryIterator> dirIter(DirectoryIteratorFactory::CreateIterator(GetIterator(argc,argv), GetPath(argc, argv)));
+        std::unique_ptr<Writable> writable(WritablesFactory::CreateWritable(GetWritable(argc,argv)));
 
-    fs::File file(path);
-    fs::RecursiveDirectoryIterator recursiveIter(file);
-    fs::StraightDirectoryIterator straightIter(file);
-
-    fs::DirectoryWalker directoryWalker(&straightIter,
-        [](const fs::File& file)
+        DirectoryWalker directoryWalker(dirIter.get(),
+                                        [&writable](const fs::File& file)
         {
-            std::cout << file.Name() << std::endl;
+            std::vector<char> buff(file.Name().cbegin(), file.Name().cend());
+            buff.push_back('\n');
+            writable->Write(buff);
         }
-    );
-    directoryWalker.Walk();
+                                       );
+        directoryWalker.Walk();
+        return 0;
+    }
+    catch(const std::exception& ex)
+    {
+        std::cerr << ex.what() << std::endl;
+    }
+    return -1;
 
-    return 0;
 }

@@ -1,10 +1,8 @@
 #include "DirectoryWalker.h"
-#include "File.h"
-#include "DirectoryIterator.h"
+#include <File.h>
+#include <DirectoryIterator.h>
 
-using namespace FileSystem;
-
-DirectoryWalker::DirectoryWalker(DirectoryIterator* iterator, const std::function<void(const File&)>& handler) 
+DirectoryWalker::DirectoryWalker(fs::DirectoryIterator* iterator, const std::function<void(const fs::File&)>& handler) 
     : m_iterator(iterator)
     , m_handler(handler)
 {
@@ -18,7 +16,7 @@ void DirectoryWalker::Walk()
         if(m_handler)
         {
             m_handler(*(*m_iterator));
-            ++(*m_iterator);
         }
+        ++(*m_iterator);
     }
 }
