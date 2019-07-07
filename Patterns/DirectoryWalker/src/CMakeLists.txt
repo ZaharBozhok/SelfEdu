@@ -6,7 +6,7 @@ message(STATUS "Name: ${PROJECT_NAME}")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -O0 -ggdb")
 
 #libs
-add_subdirectory(FileSystem)
+add_subdirectory(Filesystem)
 
 #bins
 add_subdirectory(DirectoryWalker)
