@@ -71,13 +71,13 @@ void StraightDirectoryIterator::skipDots()
 void StraightDirectoryIterator::getNext()
 {
     m_dirent = readdir(m_dir);
-    if(NULL == m_dirent)
+    if (NULL == m_dirent)
     {
         *this = end();
         return;
     }
     std::string pathToFile = m_iterableDir.Path() + "/" + m_dirent->d_name;
-    if(m_dirent->d_type & DT_DIR)
+    if (m_dirent->d_type & DT_DIR)
     {
         m_currentFile = File(pathToFile, S_IFDIR);
     }

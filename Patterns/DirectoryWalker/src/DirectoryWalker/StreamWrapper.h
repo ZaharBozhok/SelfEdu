@@ -18,7 +18,7 @@ class StreamWrapper : public Writable
             //checking badbit failbit
             return true;
         }
-        private:
+    private:
         std::ostream& m_stream;
 };
 

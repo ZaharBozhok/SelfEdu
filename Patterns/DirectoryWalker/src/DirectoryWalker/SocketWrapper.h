@@ -14,36 +14,36 @@
 
 class SocketWrapper : public Writable
 {
-public:
-    SocketWrapper(const std::string& pathToSocket) : m_address({}), m_socketFd(-1)
-    {
-        m_socketFd = socket(PF_UNIX, SOCK_STREAM, 0);
-        if(m_socketFd < 0)
+    public:
+        SocketWrapper(const std::string& pathToSocket) : m_address({}), m_socketFd(-1)
         {
-            throw std::runtime_error("Can't create socket");
+            m_socketFd = socket(PF_UNIX, SOCK_STREAM, 0);
+            if (m_socketFd < 0)
+            {
+                throw std::runtime_error("Can't create socket");
+            }
+            m_address.sun_family = AF_UNIX;
+            strcpy(m_address.sun_path, pathToSocket.c_str());
+            if (connect(m_socketFd, (sockaddr*)&m_address, sizeof(sockaddr_un)) != 0)
+            {
+                throw std::runtime_error("Can't connect to socket");
+            }
         }
-        m_address.sun_family = AF_UNIX;
-        strcpy(m_address.sun_path, pathToSocket.c_str());
-        if(connect(m_socketFd, (sockaddr*)&m_address, sizeof(sockaddr_un)) != 0)
+        bool Write(const std::vector<char>& data) override
         {
-            throw std::runtime_error("Can't connect to socket");
+            if (-1 == write(m_socketFd, data.data(), data.size()))
+            {
+                return false;
+            }
+            return true;
         }
-    }
-    bool Write(const std::vector<char>& data) override
-    {
-        if(-1 == write(m_socketFd, data.data(), data.size()))
+        ~SocketWrapper()
         {
-            return false;
+            close(m_socketFd);
         }
-        return true;
-    }
-    ~SocketWrapper()
-    {
-        close(m_socketFd);
-    }
-private:
-    sockaddr_un m_address;
-    int m_socketFd;
+    private:
+        sockaddr_un m_address;
+        int m_socketFd;
 };
 
 #endif //SOCKETWRAPPER_H

@@ -16,7 +16,7 @@ const RecursiveDirectoryIterator& RecursiveDirectoryIterator::end()
 RecursiveDirectoryIterator::RecursiveDirectoryIterator(const File& root) : m_currentFile(nullptr), m_freshDir(nullptr)
 {
     m_iterFrames.push(StraightDirectoryIterator(root));
-    if(topIt != topIt.end())
+    if (topIt != topIt.end())
     {
         getNextAtomic();
     }
@@ -59,7 +59,7 @@ void RecursiveDirectoryIterator::chopchop()
     while (topIt == topIt.end())
     {
         m_iterFrames.pop();
-        if(m_iterFrames.empty())
+        if (m_iterFrames.empty())
         {
             *this = end();
             return;
@@ -70,10 +70,10 @@ void RecursiveDirectoryIterator::chopchop()
 
 void RecursiveDirectoryIterator::getNextAtomic()
 {
-    if(*this != end())
+    if (*this != end())
     {
         m_currentFile = &(*topIt);
-        if(File::IsDirectory(*m_currentFile))
+        if (File::IsDirectory(*m_currentFile))
         {
             m_iterFrames.push(*m_currentFile);
             m_freshDir = &(*topIt);
@@ -83,10 +83,10 @@ void RecursiveDirectoryIterator::getNextAtomic()
 
 void RecursiveDirectoryIterator::getNext()
 {
-    if(nullptr != m_freshDir)
+    if (nullptr != m_freshDir)
     {
         m_freshDir = nullptr;
-        if(topIt != topIt.end())
+        if (topIt != topIt.end())
         {
             getNextAtomic();
         }
@@ -99,11 +99,11 @@ void RecursiveDirectoryIterator::getNext()
     else
     {
         ++topIt;
-        if(topIt != topIt.end())
+        if (topIt != topIt.end())
         {
             getNextAtomic();
         }
-        else if(!m_iterFrames.empty())
+        else if (!m_iterFrames.empty())
         {
             chopchop();
             getNextAtomic();

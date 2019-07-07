@@ -10,26 +10,26 @@
 
 class FileWrapper : public Writable
 {
-public:
-    FileWrapper(const std::string& path)
-    {
-        m_fd = open(path.c_str(), O_WRONLY);
-        if(-1 == m_fd)
+    public:
+        FileWrapper(const std::string& path)
         {
-            throw std::runtime_error("Can't open file");
+            m_fd = open(path.c_str(), O_WRONLY);
+            if (-1 == m_fd)
+            {
+                throw std::runtime_error("Can't open file");
+            }
         }
-    }
-    bool Write(const std::vector<char>& data) override
-    {
-        ssize_t size = write(m_fd, data.data(), data.size());
-        if(-1 == size)
+        bool Write(const std::vector<char>& data) override
         {
-            return false;
+            ssize_t size = write(m_fd, data.data(), data.size());
+            if (-1 == size)
+            {
+                return false;
+            }
+            return true;
         }
-        return true;
-    }
-private:
-    int m_fd;
+    private:
+        int m_fd;
 };
 
 #endif //FILEWRAPPER_H
