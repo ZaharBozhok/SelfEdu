@@ -12,6 +12,7 @@ fs::File::File(const std::string& path)
     processPath(path);
     getFileMode();
 }
+
 fs::File::File(const std::string& path, mode_t mode)
 {
     processPath(path);
@@ -28,6 +29,14 @@ const std::string& fs::File::Path() const
 const std::string& fs::File::Name() const
 {
     return m_name;
+}
+void fs::File::Name(const std::string& newName)
+{
+    m_name = newName;
+}
+void fs::File::Commit()
+{
+    /* TODO: save file changes */
 }
 void fs::File::getFileMode()
 {
