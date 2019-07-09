@@ -38,7 +38,6 @@ StraightDirectoryIterator StraightDirectoryIterator::end()
 StraightDirectoryIterator::StraightDirectoryIterator(const File& file) : m_iterableDir(file), m_dir(nullptr), m_dirent(nullptr)
 {
     openDir();
-    skipDots();
     getNext();
 }
 
@@ -64,13 +63,28 @@ void StraightDirectoryIterator::openDir()
 
 void StraightDirectoryIterator::skipDots()
 {
-    m_dirent = readdir(m_dir);
-    m_dirent = readdir(m_dir);
+    while (true)
+    {
+        if(NULL == m_dirent)
+        {
+            break;
+        }
+        if (0 == strcmp(m_dirent->d_name, ".") || 0 == strcmp(m_dirent->d_name, ".."))
+        {
+            m_dirent = readdir(m_dir);
+            continue;
+        }
+        else
+        {
+            break;
+        }
+    }
 }
 
 void StraightDirectoryIterator::getNext()
 {
     m_dirent = readdir(m_dir);
+    skipDots();
     if (NULL == m_dirent)
     {
         *this = end();
