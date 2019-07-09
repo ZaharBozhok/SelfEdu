@@ -37,6 +37,14 @@ class SocketWrapper : public Writable
             }
             return true;
         }
+        bool Write(const std::string& str) override
+        {
+            if (-1 == write(m_socketFd, str.data(), str.size()))
+            {
+                return false;
+            }
+            return true;
+        }
         ~SocketWrapper()
         {
             close(m_socketFd);

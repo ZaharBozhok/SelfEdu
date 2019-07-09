@@ -18,6 +18,12 @@ class StreamWrapper : public Writable
             //checking badbit failbit
             return true;
         }
+        bool Write(const std::string& str) override
+        {
+            m_stream.write(str.data(), str.size());
+            //checking badbit failbit
+            return true;
+        }
     private:
         std::ostream& m_stream;
 };
