@@ -2,6 +2,7 @@
 #define FILEMUTATORFACADEFACTORY_H
 
 #include "FileMutator.h"
+#include <stdexcept>
 
 class FileMutatorFacadeFactory
 {
@@ -19,18 +20,28 @@ class FileMutatorFacadeFactory
             {
                 mutator = new FileMutation::StringFromNameReplacer(str.at(++index), str.at(++index));
             }
-            str.erase(str.begin(), str.begin() + index);
+            else
+            {
+                throw std::runtime_error("Unknown parameter");
+            }
+            
+            str.erase(str.begin(), str.begin() + index + 1);
             return mutator;
         }
     public:
-        static FileMutation::FileMutatorFacade CreateFileMutatorFacade(std::vector<std::string> str)
+        static void CreateFileMutatorFacade(FileMutation::FileMutatorFacade& fileMutatorFacade, std::vector<std::string> str)
         {
-            FileMutation::FileMutatorFacade fileMutatorFacade;
-            while (!str.empty())
+            try
             {
-                fileMutatorFacade.AddMutator(CreateFileMutator(str));
+                while (!str.empty())
+                {
+                    fileMutatorFacade.AddMutator(CreateFileMutator(str));
+                }
             }
-            return fileMutatorFacade;
+            catch (const std::out_of_range& ex)
+            {
+                std::cerr << "Wrong number of parameters, error : " << ex.what() << std::endl;
+            }
         }
 };
 

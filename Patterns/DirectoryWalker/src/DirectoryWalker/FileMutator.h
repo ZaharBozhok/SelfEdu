@@ -45,7 +45,7 @@ namespace FileMutation
                 if (index == std::string::npos)
                 {
                     /* No file extension found, just appending to the end */
-                    index = name.size() - 1;
+                    index = name.size();
                 }
                 name.insert(index, m_text);
                 file.Name(name);
@@ -69,7 +69,7 @@ namespace FileMutation
                     {
                         break;
                     }
-                    name.replace(index, m_toReplace.size(), m_toReplace);
+                    name.replace(index, m_toFind.size(), m_toReplace);
                     index += m_toReplace.size();
                 }
                 file.Name(name);
