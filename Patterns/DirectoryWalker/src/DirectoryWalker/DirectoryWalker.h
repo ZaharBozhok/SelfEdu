@@ -14,11 +14,11 @@ namespace fs = FileSystem;
 class DirectoryWalker
 {
     public:
-        DirectoryWalker(fs::DirectoryIterator* iterator, const std::function<void(const fs::File&)>& handler);
+        DirectoryWalker(fs::DirectoryIterator* iterator, const std::function<void(fs::File&)>& handler);
         void Walk();
     private:
         fs::DirectoryIterator* m_iterator;
-        std::function<void(const fs::File&)> m_handler;
+        std::function<void(fs::File&)> m_handler;
 };
 
 
