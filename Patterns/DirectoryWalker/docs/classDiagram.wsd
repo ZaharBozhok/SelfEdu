@@ -1,0 +1,172 @@
+@startuml
+set namespaceSeparator ::
+namespace FileSystem #DDDDDD {
+    interface DirectoryIterator {
+        + File operator*()
+        + File operator->()
+        + operator bool()
+        + DirectoryIterator& operator++()
+    }
+
+    StraightDirectoryIterator --|> DirectoryIterator
+    StraightDirectoryIterator --o File
+    class StraightDirectoryIterator {
+        + {static} StraightDirectoryIterator(File)
+        + static StraightDirectoryIterator end()
+
+        - StraightDirectoryIterator();
+        - void openDir();
+        - void skipDots();
+        - void getNext();
+
+        - m_iterableDir : File
+        - m_currentFile : File
+    }
+
+    RecursiveDirectoryIterator --|> DirectoryIterator
+    RecursiveDirectoryIterator *-- StraightDirectoryIterator : has many >
+    RecursiveDirectoryIterator *-- File
+    class RecursiveDirectoryIterator {
+        + {static} RecursiveDirectoryIterator end()
+
+        - void getNext()
+        - void getNextAtomic()
+        - void chopchop()
+
+        - m_currentFile : File
+        - m_freshDir : File
+        - m_iterFrames : stack<StraightDirectoryIterator>
+    }
+
+    class File {
+        .. Getters ..
+        + string Path()
+        + string Name()
+        .. Setters ..
+        + Path(string)
+        + Name(string)
+    }
+}
+
+together {
+    interface Writable {
+        + bool Write(vector<char>)
+        + bool Write(string)
+    }
+
+    StreamWrapper --|> Writable
+    class StreamWrapper {
+        + StreamWrapper(ostream stream)
+
+        - m_stream : ostream;
+    }
+
+    SocketWrapper --|> Writable
+    class SocketWrapper {
+        + SocketWrapper(string pathToSocket)
+
+        - m_address : sockaddr_un
+        - m_socketFd : int
+    }
+
+    FileWrapper --|> Writable
+    class FileWrapper {
+        + FileWrapper(string path)
+
+        - m_fd : int
+    }
+}
+
+DirectoryWalker ..|> FileSystem::File
+DirectoryWalker *-- FileSystem::DirectoryIterator
+class DirectoryWalker {
+    + DirectoryWalker(DirectoryIterator iterator, function<void(File)> handler)
+    + void Walk()
+
+    - m_iterator : DirectoryIterator
+    - m_handler : function<void(File)>
+}
+
+together {
+    interface Mutator <<T>> {
+        + void Mutate(T mutable)
+    }
+
+    MutatorChain --|> Mutator : Mutator<MutableT>
+    class MutatorChain <<MutableT, MutatorT>> {
+        + void AddMutator(MutatorT mutator)
+
+        - m_mutations : vector<MutatorT>
+    }
+}
+
+together {
+    FileMutatorFacade ..|> FileSystem::File
+    FileMutatorFacade --|> Mutator :  Mutator<File>
+    FileMutatorFacade --|> MutatorChain : is a Mutator<File, Mutator<File>>
+    class FileMutatorFacade {
+        + void AddMutator(FileMutator mutator)
+
+        - m_mutators : vector<FileMutator>
+        - m_mutatorChain : FileMutatorChain
+    }
+
+    TextToFileNameAppender ..|> FileSystem::File
+    TextToFileNameAppender --|> Mutator : Mutator<File>
+    class TextToFileNameAppender {
+        + TextToFileNameAppender(string text)
+
+        - m_text : string
+    }
+
+    StringFromNameReplacer ..|> FileSystem::File
+    StringFromNameReplacer --|> Mutator : Mutator<File>
+    class StringFromNameReplacer {
+        + StringFromNameReplacer(string toFind, string toReplace)
+
+        - string m_toFind
+        - string m_toReplace
+    }
+}
+
+together {
+    FileMutatorFacadeFactory ..|> Mutator : <<instantiate>> >
+    FileMutatorFacadeFactory ..|> FileMutatorFacade : creates
+    class FileMutatorFacadeFactory {
+        + {static} FileMutatorFacade CreateFileMutatorFacade(vector<string> str)
+
+        - {static} FileMutator CreateFileMutator(vector<string> str)
+    }
+    together {
+        enum IteratorType {
+            STRAIGHT
+            RECURSIVE
+        }
+
+        DirectoryIteratorFactory ..|> FileSystem::DirectoryIterator : <<instantiate>> >
+        DirectoryIteratorFactory ..|> IteratorType
+        class DirectoryIteratorFactory {
+            + {static} DirectoryIterator CreateIterator(IteratorType type, string path)
+        }
+    }
+    together {
+        enum WritableType {
+            STDOUT
+            FILE
+            UNIXDOMAINSOCKET
+        }
+
+        WritablesFactory ..|> WritableType
+        WritablesFactory ..|> Writable : <<instantiate>> >
+        class WritablesFactory {
+            + {static} Writable CreateWritable(WritableType)
+        }
+    } 
+}
+
+together {
+
+}
+
+
+@enduml
