@@ -18,7 +18,6 @@ namespace FileSystem
             const std::string& Path() const;
             const std::string& Name() const;
             void Name(const std::string& newName);
-            void Commit();
         public:
             static bool IsDirectory(const File& f);
         private:
