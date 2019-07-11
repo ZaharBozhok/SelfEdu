@@ -52,7 +52,7 @@ Append **.old** to the file name and replace all **tmp** entries with **t_**
 ```bash
 ./DirectoryWalker ./ r f Name.Append .old Name.Replace tmp t_
 ```
-#### The real project purpose - practicing on design patterns
+#### The real project purpose - practicing design patterns
 
 List of used patterns in this project opens my implementation of the iterator pattern applied to directories. For now there are only 2 examples (straight and depth). This pattern is obviously taken to traverse through files. So it obviously gives an opportunity to "iterate" over the directory.The next one is Strategy pattern. In this project it used with a Factory method and kind of an Adaptor pattern. Strategy allows consumer to replace an implementation in runtime. So, in this context it chooses between writing data to UDS( unix domain socket), file or just to standard output. Adapter and Factory method help to create specific object which will be passed further. Adapter converts command line arguments into the appropriate enum type of Writable interface. Then factory method consumes passed enum and decides which concrete type of object will be created.
 
